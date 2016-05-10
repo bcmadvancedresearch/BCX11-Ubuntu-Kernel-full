@@ -12,5 +12,9 @@ PLATFORM_LIBS = platform-libs/controls_v1.o platform-libs/controls_v2.o platform
 snd-soc-sst-platform-objs := pcm.o compress.o effects.o $(PLATFORM_LIBS)
 obj-$(CONFIG_SND_SST_PLATFORM) += snd-soc-sst-platform.o
 
+# Relevant Machine driver
+obj-$(CONFIG_SND_SST_MACHINE) += board/
+# DSP driver
+obj-$(CONFIG_SND_INTEL_SST) += sst/
 # Audio Comms
 obj-$(CONFIG_SND_SOC_COMMS_SSP) += ssp/
