@@ -21,7 +21,6 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
-#define DEBUG
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/init.h>
@@ -463,8 +462,7 @@ static int platform_clock_control(struct snd_soc_dapm_widget *w,
 		vlv2_plat_configure_clock(VLV2_PLAT_CLK_AUDIO,
 				PLAT_CLK_FORCE_ON);
 		pr_debug("Platform clk turned ON\n");
-		snd_soc_codec_set_sysclk(codec, RT5645_SCLK_S_PLL1,
-				0, BYT_PLAT_CLK_3_HZ, SND_SOC_CLOCK_IN);
+		snd_soc_codec_set_sysclk(codec, RT5645_SCLK_S_RCCLK, 0, 0, SND_SOC_CLOCK_IN);
 	} else {
 		/* Set codec clock source to internal clock before
 		   turning off the platform clock. Codec needs clock

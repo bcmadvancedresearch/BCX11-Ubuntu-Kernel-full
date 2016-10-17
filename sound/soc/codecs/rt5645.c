@@ -8,7 +8,6 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-#define DEBUG 1
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/init.h>
@@ -112,7 +111,9 @@ static struct rt5645_init_reg init_list[] = {
 	{ RT5645_IRQ_CTRL2	, 0x0200 },
 	{ RT5645_JD_CTRL3	, 0x00c8 },
 #endif
-
+	/* workaround: system clock from RC clock */
+	{ RT5645_GLB_CLK	, 0x8000 },
+	{ 0x86			, 0x0000 },
 };
 #define RT5645_INIT_REG_LEN ARRAY_SIZE(init_list)
 
@@ -2741,10 +2742,10 @@ static int rt5645_set_dai_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 	return 0;
 }
 
-static int rt5645_set_dai_sysclk(struct snd_soc_dai *dai,
-		int clk_id, unsigned int freq, int dir)
+static int rt5645_set_sysclk(struct snd_soc_codec *codec,
+		int clk_id, int source, unsigned int freq, int dir)
 {
-	struct snd_soc_codec *codec = dai->codec;
+	//struct snd_soc_codec *codec = dai->codec;
 	struct rt5645_priv *rt5645 = snd_soc_codec_get_drvdata(codec);
 	unsigned int reg_val = 0;
 
@@ -2770,9 +2771,15 @@ static int rt5645_set_dai_sysclk(struct snd_soc_dai *dai,
 	rt5645->sysclk = freq;
 	rt5645->sysclk_src = clk_id;
 
-	dev_dbg(dai->dev, "Sysclk is %dHz and clock id is %d\n", freq, clk_id);
+	dev_dbg(codec->dev, "Sysclk is %dHz and clock id is %d\n", freq, clk_id);
 
 	return 0;
+}
+
+static int rt5645_set_dai_sysclk(struct snd_soc_dai *dai,
+                int clk_id, unsigned int freq, int dir)
+{
+	return rt5645_set_sysclk(dai->codec, clk_id, 0, freq, dir);
 }
 
 /**
@@ -3456,6 +3463,7 @@ static struct snd_soc_codec_driver soc_codec_dev_rt5645 = {
 	.volatile_register = rt5645_volatile_register,
 	.readable_register = rt5645_readable_register,
 	.reg_cache_step = 1,
+	.set_sysclk = rt5645_set_sysclk,
 };
 
 static const struct i2c_device_id rt5645_i2c_id[] = {
